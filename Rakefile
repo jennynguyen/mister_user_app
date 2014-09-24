@@ -1,3 +1,4 @@
+require 'pry'
 # A method to get the name of our project from the root directory
 # Rakefiles are just ruby so we can write methods in here too!
 def project_name
@@ -87,5 +88,28 @@ namespace :db do
     # calls rake environment[env]
     Rake::Task['environment'].invoke(env)
     require './db/seeds'
+  end
+
+  desc "seed random users"
+  # $ rake db:seed_random_users
+  task :seed_random_users, [:env] do |cmd, args|
+    # load up the environment
+    env = args[:env] || ENV["RACK_ENV"] || "development"
+    Rake::Task['environment'].invoke(env)
+    url = "http://api.randomuser.me"
+    # binding.pry
+    10.times do
+      response = HTTParty.get(url)
+      User.create(
+        :email    => response["results"][0]["user"]["email"],
+        :name     => response["results"][0]["user"]["name"],
+        :gender   => response["results"][0]["user"]["gender"],
+        :picture  => response["results"][0]["user"]["picture"],
+        :dob      => response["results"][0]["user"]["dob"],
+        :phone    => response["results"][0]["user"]["phone"],
+        :location => response["results"][0]["user"]["location"],
+        :password => response["results"][0]["user"]["password"]
+        )
+    end
   end
 end
