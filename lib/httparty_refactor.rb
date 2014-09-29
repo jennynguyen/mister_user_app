@@ -1,0 +1,2 @@
+module RandomUser
+end
